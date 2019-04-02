@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="myPackage.mybatis.Mapper">
+    <update id="truncate">
+        TRUNCATE expressions, rules, "knownFacts";
+        alter sequence expression_id_seq restart;
+        alter sequence expressions_id_seq restart;
+        alter sequence rules_id_seq restart;
+    </update>
+
+    <insert id="insertRule" parameterType="myPackage.mybatis.Rule">
+        INSERT INTO rules (result, expression_id) VALUES (#{result}, #{expressionID});
+    </insert>
+
+    <insert id = "insertOR" parameterType="myPackage.mybatis.Expression" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into expressions (e_type, value, parent_id) values ('OR', NULL, #{parentID})
+    </insert>
+
+    <insert id = "insertAND" parameterType="myPackage.mybatis.Expression" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into expressions (e_type, value, parent_id) values ('AND', NULL, #{parentID})
+    </insert>
+
+    <insert id = "insertFACT" parameterType="myPackage.mybatis.Expression" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into expressions (e_type, value, parent_id) values ('FACT', #{fact}, #{parentID})
+    </insert>
+
+    <select id = "getRules" resultMap="metarule">
+        select result, expression_id
+        from rules
+    </select>
+
+    <resultMap id="metarule" type="MetaRule">
+        <result property="result" column="result"/>
+        <result property="expressionID" column="expression_id"/>
+    </resultMap>
+
+    <select id = "getRuleExpression" resultMap="rule_expression" parameterType="Integer" >
+        select id, e_type, value
+        from expressions
+        where id = #{value}
+        order by id
+    </select>
+    <resultMap id="rule_expression" type="myPackage.mybatis.Expression">
+        <discriminator javaType="expressionType" column="e_type">
+            <case value="OR" resultType="myPackage.mybatis.OrExp">
+                <constructor>
+                    <arg column="id" javaType="Integer"/>
+                </constructor>
+            </case>
+            <case value="AND" resultType="myPackage.mybatis.AndExp">
+                <constructor>
+                    <arg column="id" javaType="Integer"/>
+                </constructor>
+            </case>
+            <case value="FACT" resultType="myPackage.mybatis.FactExp">
+                <constructor>
+                    <arg column="value" javaType="String"/>
+                </constructor>
+            </case>
+        </discriminator>
+    </resultMap>
+
+    <select id = "getExpression" resultMap="expression" parameterType="Integer" >
+        select id, e_type, value
+        from expressions
+        where parent_id = #{value}
+        order by id
+    </select>
+    <resultMap id="expression" type="myPackage.mybatis.Expression">
+        <discriminator javaType="expressionType" column="e_type">
+            <case value="OR" resultType="myPackage.mybatis.OrExp">
+                <constructor>
+                    <arg column="id" javaType="Integer"/>
+                </constructor>
+            </case>
+            <case value="AND" resultType="myPackage.mybatis.AndExp">
+                <constructor>
+                    <arg column="id" javaType="Integer"/>
+                </constructor>
+            </case>
+            <case value="FACT" resultType="myPackage.mybatis.FactExp">
+                <constructor>
+                    <arg column="value" javaType="String"/>
+                </constructor>
+            </case>
+        </discriminator>
+    </resultMap>
+
+</mapper>

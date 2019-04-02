@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="myPackage.mybatis.Mapper">
+    <update id="truncate">
+        TRUNCATE expression, rules, "knownFacts";
+        alter sequence expression_id_seq restart;
+    </update>
+
+    <insert id="insertRule" parameterType="myPackage.mybatis.Expression" useGeneratedKeys="true" keyProperty="id" keyColumn="id_rule">
+        INSERT INTO rules (result) VALUES (#{result});
+    </insert>
+
+    <insert id = "insertOR" parameterType="myPackage.mybatis.Expression" >
+        insert into expression (expression_type, val, depth, rule_id) values ('or', NULL, #{depth}, #{id})
+    </insert>
+
+    <insert id = "insertAND" parameterType="myPackage.mybatis.Expression">
+        insert into expression (expression_type, val, depth, rule_id) values ('and', NULL, #{depth}, #{id})
+    </insert>
+
+    <insert id = "insertFACT" parameterType="myPackage.mybatis.Expression">
+        insert into expression (expression_type, val, depth, rule_id) values ('fact', #{fact}, #{depth},  #{id})
+    </insert>
+
+    <select id = "getRules" resultMap="metarule">
+        select result,id_rule
+        from rules
+    </select>
+
+    <resultMap id="metarule" type="MetaRule">
+        <result property="ruleID" column="id_rule"/>
+        <result property="result" column="result"/>
+    </resultMap>
+
+
+    <select id = "getExpression" resultMap="expression" parameterType="Integer" >
+        select expression_type, val, depth
+        from expression
+        where rule_id = #{value}
+        order by id
+    </select>
+    <resultMap id="expression" type="myPackage.mybatis.Expression">
+        <discriminator javaType="String" column="expression_type">
+            <case value="or" resultType="myPackage.mybatis.OrExp">
+                <result property="depth" column="depth"/>
+            </case>
+            <case value="and" resultType="myPackage.mybatis.AndExp">
+                <result property="depth" column="depth"/>
+            </case>
+            <case value="fact" resultType="myPackage.mybatis.FactExp">
+                <result property="fact" column="val"/>
+                <result property="depth" column="depth"/>
+            </case>
+        </discriminator>
+    </resultMap>
+
+</mapper>

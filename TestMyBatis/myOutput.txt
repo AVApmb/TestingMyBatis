@@ -1,0 +1,41 @@
+﻿||
+ &&
+  ||
+    F
+    E
+   D
+ &&
+  ||
+    C
+    B
+   A
+someResult
+___
+
+||
+ &&
+  ||
+    Q
+    E
+   D
+ &&
+  ||
+    C
+    B
+   A
+someResult
+___
+
+||
+ &&
+  ||
+    Z
+    E
+   D
+ &&
+  ||
+    C
+    B
+   A
+AnotherResult
+___
